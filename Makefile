@@ -1,7 +1,8 @@
 CFLAGS += -Wall -Wextra
 LDFLAGS += -lraylib -lm -lpthread -lGL -ldl -lrt -lX11
 SOURCES = main.c \
-					tictactoe.c
+					tictactoe.c \
+					ui.c
 OBJS = $(SOURCES:.c=.o)
 NAME = game
 RL_HOME = /home/user/code/foss/raylib-5.0/
