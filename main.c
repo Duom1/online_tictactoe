@@ -79,8 +79,8 @@ void updateDrawFrame(void) {
 
 int main(void) {
   // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  SetExitKey(KEY_NULL);
   InitWindow(original_size.x, original_size.y, "tictactoe");
+  SetExitKey(KEY_NULL);
   auto_scale(&online_play_btn);
   auto_scale(&local_play_btn);
 

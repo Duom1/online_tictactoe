@@ -28,8 +28,12 @@ $(NAME): $(OBJS)
 %.o: %.c
 	$(CC) -c $< $(CFLAGS)
 
+tests: $(OBJS)
+	gcc test_tictactoe.c tictactoe.o -o test_tictactoe $(CFLAGS)
+
 clean:
 	rm -f $(NAME) $(OBJS) $(NAME).html $(NAME).js $(NAME).wasm $(NAME).mem $(NAME).data index.html
+	rm -f test_tictactoe
 
 # web: CFLAGS = -Os -Wall
 # # Here are the instructions to compile raylib for the web.
