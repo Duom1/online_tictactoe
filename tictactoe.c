@@ -2,7 +2,25 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool place_piece(board_t board, int place, int player);
+void zero_board(board_t board) {
+  for (int i = 0; i < BOARD_SIZE; ++i) {
+    board[i] = PLAYER_NONE;
+  }
+}
+
+bool place_piece(board_t board, int place, int player) {
+  if (place >= 0 && place <= BOARD_SIZE) {
+    if (board[place] == PLAYER_NONE) {
+      board[place] = player;
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    fprintf(stderr, "could not place because place is outside of the board");
+    return false;
+  }
+}
 
 int check_winner(board_t board) {
   for (int i = PLAYER_1; i <= PLAYER_2; ++i) {

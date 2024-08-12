@@ -21,5 +21,7 @@ bool place_piece(board_t board, int place, int player);
 // Returns 0 if not player has won and returns thge player number
 // if that player has won
 int check_winner(board_t board);
+// This function zeroes out the entire board
+void zero_board(board_t board);
 
 #endif // INCLUDE_TITACTOE_H_

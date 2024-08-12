@@ -42,7 +42,7 @@ button_t online_play_btn = {(Vector2){20, 350},
                             (char *)online_txt,
                             15};
 
-void updateDrawFrame(void) {
+void update_draw_frame(void) {
   mouse_pos = GetMousePosition();
   switch (game_state) {
   case GAME_MENU:
@@ -81,6 +81,7 @@ int main(void) {
   // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(original_size.x, original_size.y, "tictactoe");
   SetExitKey(KEY_NULL);
+
   auto_scale(&online_play_btn);
   auto_scale(&local_play_btn);
 
@@ -89,7 +90,7 @@ int main(void) {
   // #else
   SetTargetFPS(TARGET_FPS);
   while (!WindowShouldClose()) {
-    updateDrawFrame();
+    update_draw_frame();
   }
   // #endif
 
