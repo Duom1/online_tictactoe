@@ -17,11 +17,6 @@ enum Game_state {
   GAME_ONLINE,
 };
 
-online_t online;
-int game_state = GAME_MENU;
-Vector2 original_size = {800, 800};
-Vector2 mouse_pos;
-
 // the sizes for the text have to be auto set using auto_scale()
 const char play_txt[] = "Play";
 button_t local_play_btn = {(Vector2){20, 200},
@@ -41,6 +36,11 @@ button_t online_play_btn = {(Vector2){20, 350},
                             GREEN,
                             (char *)online_txt,
                             15};
+
+online_t online;
+int game_state = GAME_MENU;
+Vector2 original_size = {800, 800};
+Vector2 mouse_pos;
 
 #include "grid.h"
 button_t *placement_grid[BOARD_SIZE] = {
