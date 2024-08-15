@@ -1,3 +1,6 @@
+#ifndef INCLUDE_ONLINE_TICTACTOE_GRID_H_
+#define INCLUDE_ONLINE_TICTACTOE_GRID_H_
+
 #include "ui.h"
 #include <raylib.h>
 #include <stddef.h>
@@ -74,3 +77,5 @@ button_t place_8 = {(Vector2){500, 500},
                     GREEN,
                     NULL,
                     15};
+
+#endif // INCLUDE_ONLINE_TICTACTOE_GRID_H_

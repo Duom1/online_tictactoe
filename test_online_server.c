@@ -1,4 +1,5 @@
 #include "online.h"
+#include "tictactoe.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +22,11 @@ int main(void) {
     exit(EXIT_FAILURE);
   }
 
-  char data_recv;
-  recv(online.new_connection, &data_recv, 1, 0);
-  printf("%c\n", data_recv);
+  board_t board;
+  recv_board(&online, board);
+
+  printf("the board revived by the server:\n");
+  fprint_board(stdout, board);
 
   close(online.sock);
   return EXIT_SUCCESS;

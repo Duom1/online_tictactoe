@@ -10,7 +10,7 @@
 #define PLAYER_2 0x62
 #define PLAYER_NONE 0x0
 
-typedef int board_t[BOARD_SIZE];
+typedef int32_t board_t[BOARD_SIZE];
 
 // This function uses board_t instead of board_t *
 // because it will decay into a pointer regardless.

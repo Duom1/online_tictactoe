@@ -1,11 +1,13 @@
 #include "online.h"
+#include "tictactoe.h"
 #include <arpa/inet.h>
 #include <errno.h>
+#include <netinet/in.h>
 #include <stdio.h>
-#include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
-int server_setup(struct Online *online) {
+int server_setup(online_t *online) {
   int ret = 0;
   online->addrlen = sizeof(online->address);
 
@@ -37,7 +39,7 @@ return_from_func:
   return ret;
 }
 
-int client_setup(struct Online *online, char *address) {
+int client_setup(online_t *online, char *address) {
   int ret = 0;
   online->addrlen = sizeof(online->address);
   if ((online->sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -63,5 +65,25 @@ int client_setup(struct Online *online, char *address) {
   }
 
 return_from_func:
+  return ret;
+}
+
+int send_board(online_t *online, board_t board) {
+  int ret = 0;
+  board_t network_bo;
+  for (int i = 0; i < BOARD_SIZE; ++i) {
+    network_bo[i] = htonl(board[i]);
+  }
+  send(online->sock, &network_bo, sizeof(board_t), 0);
+  return ret;
+}
+
+int recv_board(online_t *online, board_t board) {
+  int ret = 0;
+  board_t network_bo;
+  recv(online->new_connection, &network_bo, sizeof(board_t), 0);
+  for (int i = 0; i < BOARD_SIZE; ++i) {
+    board[i] = ntohl(network_bo[i]);
+  }
   return ret;
 }

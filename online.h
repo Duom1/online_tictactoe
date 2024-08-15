@@ -1,6 +1,7 @@
 #ifndef INCLUDE_ONLINE_H_
 #define INCLUDE_ONLINE_H_
 
+#include "tictactoe.h"
 #include <arpa/inet.h>
 #include <stdbool.h>
 
@@ -18,8 +19,14 @@ typedef struct Online {
   socklen_t addrlen;
 } online_t;
 
-// both fucntions retun 0 if the operarion was successfull
-int server_setup(struct Online *online);
-int client_setup(struct Online *online, char *address);
+// all fucntions retun 0 if the operarion was successfull
+// sets up the online variable for server
+int server_setup(online_t *online);
+// sets up the online variable for client
+int client_setup(online_t *online, char *address);
+// sends the board variable to online.sock
+int send_board(online_t *online, board_t board);
+// recieves board to the board variable
+int recv_board(online_t *online, board_t board);
 
 #endif // INCLUDE_ONLINE_H_

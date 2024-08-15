@@ -1,4 +1,5 @@
 #include "online.h"
+#include "tictactoe.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -11,9 +12,13 @@ int main(void) {
     printf("failed server_setup()\n");
   }
 
-  char data = 'j';
+  board_t board = {PLAYER_NONE, PLAYER_NONE, PLAYER_1,    PLAYER_NONE, PLAYER_1,
+                   PLAYER_NONE, PLAYER_1,    PLAYER_NONE, PLAYER_NONE};
 
-  send(online.sock, &data, 1, 0);
+  printf("sending this board:\n");
+  fprint_board(stdout, board);
+
+  send_board(&online, board);
 
   close(online.sock);
   return EXIT_SUCCESS;

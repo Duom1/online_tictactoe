@@ -12,7 +12,7 @@ ifeq ($(OS),Windows_NT)
 	LDFLAGS += -mwindows
 endif
 
-.PHONY: default def clean release debug # web host itchio
+.PHONY: default def clean release debug on_test # web host itchio
 
 default: release
 def: release
@@ -31,12 +31,17 @@ $(NAME): $(OBJS)
 
 tests: $(OBJS)
 	gcc test_tictactoe.c tictactoe.o -o test_tictactoe $(CFLAGS)
-	gcc test_online_server.c online.o -o test_online_server $(CFLAGS)
-	gcc test_online_client.c online.o -o test_online_client $(CFLAGS)
+	gcc test_online_server.c online.o tictactoe.o -o test_online_server $(CFLAGS)
+	gcc test_online_client.c online.o tictactoe.o -o test_online_client $(CFLAGS)
 
 clean:
 	rm -f $(NAME) $(OBJS) $(NAME).html $(NAME).js $(NAME).wasm $(NAME).mem $(NAME).data index.html
 	rm -f test_tictactoe test_online_server test_online_client
+
+on_test:
+	./test_online_server &
+	sleep 1
+	./test_online_client
 
 # web: CFLAGS = -Os -Wall
 # # Here are the instructions to compile raylib for the web.
