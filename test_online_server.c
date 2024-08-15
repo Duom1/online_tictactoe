@@ -21,8 +21,9 @@ int main(void) {
     exit(EXIT_FAILURE);
   }
 
-  while (true) {
-  }
+  char data_recv;
+  recv(online.new_connection, &data_recv, 1, 0);
+  printf("%c\n", data_recv);
 
   close(online.sock);
   return EXIT_SUCCESS;

@@ -9,6 +9,8 @@
 // #endif
 
 #define TARGET_FPS 60
+#define ORIGINAL_SCREEN_X 800
+#define ORIGINAL_SCREEN_Y 800
 
 enum Game_state {
   GAME_MENU = 1,
@@ -16,6 +18,8 @@ enum Game_state {
   GAME_LOCAL,
   GAME_ONLINE,
 };
+
+Vector2 original_size = {ORIGINAL_SCREEN_X, ORIGINAL_SCREEN_Y};
 
 // the sizes for the text have to be auto set using auto_scale()
 const char play_txt[] = "Play";
@@ -36,10 +40,18 @@ button_t online_play_btn = {(Vector2){20, 350},
                             GREEN,
                             (char *)online_txt,
                             15};
+const char back_txt[] = "Back";
+button_t back_btn = {(Vector2){20, ORIGINAL_SCREEN_Y - 100},
+                     (Vector2){340, 60},
+                     (Vector2){0, 0},
+                     (Vector2){0, 0},
+                     GRAY,
+                     GREEN,
+                     (char *)back_txt,
+                     15};
 
 online_t online;
 int game_state = GAME_MENU;
-Vector2 original_size = {800, 800};
 Vector2 mouse_pos;
 
 #include "grid.h"
@@ -56,18 +68,33 @@ int player_turn = PLAYER_1;
 int last_to_win = PLAYER_NONE;
 board_t board;
 
+void reset_for_local_game(int *last_to_win, int winner, int *player_turn,
+                          button_t **placement_grid, int *board) {
+  *player_turn = PLAYER_1;
+  *last_to_win = winner;
+  for (int i = 0; i < BOARD_SIZE; ++i) {
+    placement_grid[i]->text = NULL;
+  }
+  zero_board(board);
+}
+
 void update_draw_frame(void) {
   mouse_pos = GetMousePosition();
   switch (game_state) {
   case GAME_MENU:
     if (is_button_pressed(local_play_btn, mouse_pos)) {
       game_state = GAME_LOCAL;
+      reset_for_local_game(&last_to_win, PLAYER_NONE, &player_turn,
+                           placement_grid, board);
     } else if (is_button_pressed(online_play_btn, mouse_pos)) {
       game_state = GAME_MENU_ONLINE;
     }
     break;
   case GAME_LOCAL:
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      if (is_button_pressed(back_btn, mouse_pos)) {
+        game_state = GAME_MENU;
+      }
       for (int i = 0; i < BOARD_SIZE; ++i) {
         if (is_button_pressed(*placement_grid[i], mouse_pos)) {
           if (player_turn == PLAYER_1) {
@@ -83,12 +110,8 @@ void update_draw_frame(void) {
           }
           int winner = check_winner(board);
           if (winner != PLAYER_NONE) {
-            player_turn = PLAYER_1;
-            last_to_win = winner;
-            for (int i = 0; i < BOARD_SIZE; ++i) {
-              placement_grid[i]->text = NULL;
-            }
-            zero_board(board);
+            reset_for_local_game(&last_to_win, winner, &player_turn,
+                                 placement_grid, board);
           }
         }
       }
@@ -128,6 +151,7 @@ void update_draw_frame(void) {
       }
       DrawText(winner_text, 10, 10, 60, GREEN);
     }
+    draw_button(back_btn);
     for (int i = 0; i < BOARD_SIZE; ++i) {
       draw_button(*placement_grid[i]);
     }
@@ -147,6 +171,7 @@ int main(void) {
 
   auto_scale(&online_play_btn);
   auto_scale(&local_play_btn);
+  auto_scale(&back_btn);
   zero_board(board);
 
   // #ifdef PLATFORM_WEB

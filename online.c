@@ -58,7 +58,7 @@ int client_setup(struct Online *online, char *address) {
   if (connect(online->sock, (struct sockaddr *)&online->address,
               online->addrlen) < 0) {
     ret = 5;
-    printf("failed to connect");
+    printf("failed to connect\n");
     goto return_from_func;
   }
 

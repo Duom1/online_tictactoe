@@ -1,5 +1,4 @@
 #include "online.h"
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -11,8 +10,11 @@ int main(void) {
   if (client_setup(&online, address_str) != 0) {
     printf("failed server_setup()\n");
   }
-  while (true) {
-  }
+
+  char data = 'j';
+
+  send(online.sock, &data, 1, 0);
+
   close(online.sock);
   return EXIT_SUCCESS;
 }
