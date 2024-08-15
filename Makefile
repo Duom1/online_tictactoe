@@ -2,7 +2,8 @@ CFLAGS += -Wall -Wextra
 LDFLAGS += -lraylib -lm -lpthread -lGL -ldl -lrt -lX11
 SOURCES = main.c \
 					tictactoe.c \
-					ui.c
+					ui.c \
+					online.c
 OBJS = $(SOURCES:.c=.o)
 NAME = game
 RL_HOME = /home/user/code/foss/raylib-5.0/
@@ -30,10 +31,12 @@ $(NAME): $(OBJS)
 
 tests: $(OBJS)
 	gcc test_tictactoe.c tictactoe.o -o test_tictactoe $(CFLAGS)
+	gcc test_online_server.c online.o -o test_online_server $(CFLAGS)
+	gcc test_online_client.c online.o -o test_online_client $(CFLAGS)
 
 clean:
 	rm -f $(NAME) $(OBJS) $(NAME).html $(NAME).js $(NAME).wasm $(NAME).mem $(NAME).data index.html
-	rm -f test_tictactoe
+	rm -f test_tictactoe test_online_server test_online_client
 
 # web: CFLAGS = -Os -Wall
 # # Here are the instructions to compile raylib for the web.

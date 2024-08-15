@@ -15,10 +15,11 @@ typedef struct Online {
   int sock;
   int new_connection;
   struct sockaddr_in address;
+  socklen_t addrlen;
 } online_t;
 
 // both fucntions retun 0 if the operarion was successfull
-int server_setup(struct Online online);
-int client_setup(struct Online online, char *address);
+int server_setup(struct Online *online);
+int client_setup(struct Online *online, char *address);
 
 #endif // INCLUDE_ONLINE_H_

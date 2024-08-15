@@ -1,3 +1,8 @@
 game
 *.o
 test_tictactoe
+test_online_server
+test_online_client
+test_tictactoe.exe
+test_online_server.exe
+test_online_client.exe
