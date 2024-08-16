@@ -27,6 +27,9 @@ int client_setup(online_t *online, char *address);
 // sends the board variable to online.sock
 int send_board(online_t *online, board_t board);
 // recieves board to the board variable
+// this returns waht ever the recv function returns
 int recv_board(online_t *online, board_t board);
+// make a socket non blocking
+void make_non_blocking(int fd);
 
 #endif // INCLUDE_ONLINE_H_

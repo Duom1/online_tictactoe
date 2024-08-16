@@ -3,6 +3,7 @@
 #include "ui.h"
 #include <raylib.h>
 #include <stdio.h>
+#include <string.h>
 
 // #ifdef PLATFORM_WEB
 // #include <emscripten/emscripten.h>
@@ -49,6 +50,32 @@ button_t back_btn = {(Vector2){20, ORIGINAL_SCREEN_Y - 100},
                      GREEN,
                      (char *)back_txt,
                      15};
+const char host_txt[] = "Host";
+button_t host_btn = {(Vector2){20, 150},
+                     (Vector2){340, 100},
+                     (Vector2){0, 0},
+                     (Vector2){0, 0},
+                     GRAY,
+                     GREEN,
+                     (char *)host_txt,
+                     15};
+const char join_txt[] = "Join";
+button_t join_btn = {(Vector2){20, 300},
+                     (Vector2){340, 100},
+                     (Vector2){0, 0},
+                     (Vector2){0, 0},
+                     GRAY,
+                     GREEN,
+                     (char *)join_txt,
+                     15};
+ip_box_t input_ip_box = {(Vector2){200, 300},
+                         (Vector2){400, 100},
+                         (Vector2){205, 305},
+                         (Vector2){0, 90},
+                         GRAY,
+                         GREEN,
+                         15,
+                         LOCAL_HOST};
 
 online_t online;
 int game_state = GAME_MENU;
@@ -67,6 +94,7 @@ char textUnknown[] = "Unknown";
 int player_turn = PLAYER_1;
 int last_to_win = PLAYER_NONE;
 board_t board;
+ip_box_t *selected_input = NULL;
 
 void reset_for_local_game(int *last_to_win, int winner, int *player_turn,
                           button_t **placement_grid, int *board) {
@@ -117,7 +145,23 @@ void update_draw_frame(void) {
       }
     }
     break;
+  case GAME_MENU_ONLINE:
+    if (is_button_pressed(host_btn, mouse_pos)) {
+    }
+    if (is_button_pressed(join_btn, mouse_pos)) {
+    }
+    if (is_button_pressed(back_btn, mouse_pos)) {
+      game_state = GAME_MENU;
+    }
+    if (was_box_cliked(input_ip_box, mouse_pos)) {
+      selected_input = &input_ip_box;
+    }
+    if (selected_input != NULL) {
+      get_box_input(selected_input);
+    }
+    break;
   default:
+    fprintf(stderr, "something went wrong!!!");
     break;
   }
 
@@ -133,6 +177,10 @@ void update_draw_frame(void) {
     break;
   case GAME_MENU_ONLINE:
     DrawText("Online menu", 10, 10, 60, GREEN);
+    draw_button(join_btn);
+    draw_button(host_btn);
+    draw_button(back_btn);
+    draw_IP_box(input_ip_box);
     break;
   case GAME_LOCAL:
     if (last_to_win == PLAYER_NONE) {
@@ -160,7 +208,7 @@ void update_draw_frame(void) {
     DrawText("something went", 10, 10, 80, RED);
     DrawText("wrong", 10, 90, 80, RED);
   }
-  DrawFPS(20, 100);
+  DrawFPS(original_size.x - 110, 40);
   EndDrawing();
 }
 
@@ -172,6 +220,8 @@ int main(void) {
   auto_scale(&online_play_btn);
   auto_scale(&local_play_btn);
   auto_scale(&back_btn);
+  auto_scale(&host_btn);
+  auto_scale(&join_btn);
   zero_board(board);
 
   // #ifdef PLATFORM_WEB

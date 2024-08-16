@@ -2,6 +2,7 @@
 #include "tictactoe.h"
 #include <arpa/inet.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -79,11 +80,14 @@ int send_board(online_t *online, board_t board) {
 }
 
 int recv_board(online_t *online, board_t board) {
-  int ret = 0;
   board_t network_bo;
-  recv(online->new_connection, &network_bo, sizeof(board_t), 0);
-  for (int i = 0; i < BOARD_SIZE; ++i) {
-    board[i] = ntohl(network_bo[i]);
+  int ret = recv(online->new_connection, &network_bo, sizeof(board_t), 0);
+  if (ret != 0 && ret > 0) {
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+      board[i] = ntohl(network_bo[i]);
+    }
   }
   return ret;
 }
+
+void make_non_blocking(int fd) { fcntl(fd, F_SETFL, O_NONBLOCK); }
