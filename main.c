@@ -1,9 +1,11 @@
 #include "online.h"
 #include "tictactoe.h"
 #include "ui.h"
+#include <arpa/inet.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
 
 // #ifdef PLATFORM_WEB
 // #include <emscripten/emscripten.h>
@@ -18,6 +20,13 @@ enum Game_state {
   GAME_MENU_ONLINE,
   GAME_LOCAL,
   GAME_ONLINE,
+};
+
+enum Online_menu_state {
+  ONLINE_STATE_NONE = 0,
+  ONLINE_WAITING_FOR_CLIENT = 1,
+  ONLINE_JOINING_GAME,
+  ONLINE_PLAYING
 };
 
 Vector2 original_size = {ORIGINAL_SCREEN_X, ORIGINAL_SCREEN_Y};
@@ -95,6 +104,8 @@ int player_turn = PLAYER_1;
 int last_to_win = PLAYER_NONE;
 board_t board;
 ip_box_t *selected_input = NULL;
+int online_state = ONLINE_STATE_NONE;
+int connect_status = -1;
 
 void reset_for_local_game(int *last_to_win, int winner, int *player_turn,
                           button_t **placement_grid, int *board) {
@@ -147,18 +158,46 @@ void update_draw_frame(void) {
     break;
   case GAME_MENU_ONLINE:
     if (is_button_pressed(host_btn, mouse_pos)) {
-    }
-    if (is_button_pressed(join_btn, mouse_pos)) {
-    }
-    if (is_button_pressed(back_btn, mouse_pos)) {
+      server_setup(&online);
+      online_state = ONLINE_WAITING_FOR_CLIENT;
+      game_state = GAME_ONLINE;
+      make_non_blocking(online.sock);
+    } else if (is_button_pressed(join_btn, mouse_pos)) {
+      client_setup(&online, input_ip_box.text);
+      online_state = ONLINE_JOINING_GAME;
+      game_state = GAME_ONLINE;
+      make_non_blocking(online.sock);
+    } else if (is_button_pressed(back_btn, mouse_pos)) {
       game_state = GAME_MENU;
-    }
-    if (was_box_cliked(input_ip_box, mouse_pos)) {
+    } else if (was_box_cliked(input_ip_box, mouse_pos)) {
       selected_input = &input_ip_box;
-    }
-    if (selected_input != NULL) {
+    } else if (selected_input != NULL) {
       get_box_input(selected_input);
     }
+    break;
+  case GAME_ONLINE:
+    switch (online_state) {
+    case ONLINE_WAITING_FOR_CLIENT:
+      online.new_connection =
+          accept(online.sock, (struct sockaddr *)&(online.address),
+                 (socklen_t *)&(online.addrlen));
+      if (!(online.new_connection < 0)) {
+        fprintf(stderr, "acceped new connection\n");
+        online_state = ONLINE_PLAYING;
+      }
+      break;
+    case ONLINE_JOINING_GAME:
+      connect_status = connect(
+          online.sock, (struct sockaddr *)&(online.address), online.addrlen);
+      if (connect_status == 0) {
+        fprintf(stderr, "connected!");
+        online_state = ONLINE_PLAYING;
+        online.new_connection = online.sock;
+      }
+    case ONLINE_PLAYING:
+      break;
+    }
+
     break;
   default:
     fprintf(stderr, "something went wrong!!!");
@@ -204,9 +243,23 @@ void update_draw_frame(void) {
       draw_button(*placement_grid[i]);
     }
     break;
+  case GAME_ONLINE:
+    switch (online_state) {
+    case ONLINE_WAITING_FOR_CLIENT:
+      DrawText("waiting for other player", 10, 10, 50, GREEN);
+      break;
+    case ONLINE_JOINING_GAME:
+      DrawText("joining game", 10, 10, 50, GREEN);
+      break;
+    case ONLINE_PLAYING:
+      DrawText("playing online", 10, 10, 50, GREEN);
+      break;
+    }
+    break;
   default:
     DrawText("something went", 10, 10, 80, RED);
     DrawText("wrong", 10, 90, 80, RED);
+    break;
   }
   DrawFPS(original_size.x - 110, 40);
   EndDrawing();

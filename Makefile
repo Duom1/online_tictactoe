@@ -38,6 +38,10 @@ clean:
 	rm -f $(NAME) $(OBJS) $(NAME).html $(NAME).js $(NAME).wasm $(NAME).mem $(NAME).data index.html
 	rm -f test_tictactoe test_online_server test_online_client
 
+double:
+	./$(NAME) &
+	./$(NAME)
+
 on_test:
 	./test_online_server &
 	sleep 1
