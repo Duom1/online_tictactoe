@@ -68,7 +68,7 @@ int send_board(online_t *online, board_t board) {
   for (int i = 0; i < BOARD_SIZE; ++i) {
     network_bo[i] = htonl(board[i]);
   }
-  send(online->sock, &network_bo, sizeof(board_t), 0);
+  send(online->new_connection, &network_bo, sizeof(board_t), 0);
   return ret;
 }
 

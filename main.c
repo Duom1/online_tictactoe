@@ -3,6 +3,7 @@
 #include "ui.h"
 #include <arpa/inet.h>
 #include <raylib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -106,6 +107,9 @@ board_t board;
 ip_box_t *selected_input = NULL;
 int online_state = ONLINE_STATE_NONE;
 int connect_status = -1;
+bool my_turn;
+int my_piece;
+int hosting;
 
 void reset_for_local_game(int *last_to_win, int winner, int *player_turn,
                           button_t **placement_grid, int *board) {
@@ -162,11 +166,17 @@ void update_draw_frame(void) {
       online_state = ONLINE_WAITING_FOR_CLIENT;
       game_state = GAME_ONLINE;
       make_non_blocking(online.sock);
+      my_turn = true;
+      my_piece = PLAYER_1;
+      hosting = true;
     } else if (is_button_pressed(join_btn, mouse_pos)) {
       client_setup(&online, input_ip_box.text);
       online_state = ONLINE_JOINING_GAME;
       game_state = GAME_ONLINE;
       make_non_blocking(online.sock);
+      my_turn = false;
+      my_piece = PLAYER_2;
+      hosting = false;
     } else if (is_button_pressed(back_btn, mouse_pos)) {
       game_state = GAME_MENU;
     } else if (was_box_cliked(input_ip_box, mouse_pos)) {
@@ -195,6 +205,56 @@ void update_draw_frame(void) {
         online.new_connection = online.sock;
       }
     case ONLINE_PLAYING:
+      if (my_turn) {
+        for (int i = 0; i < BOARD_SIZE; ++i) {
+          if (is_button_pressed(*placement_grid[i], mouse_pos)) {
+            board[i] = my_piece;
+            if (my_piece == PLAYER_1) {
+              placement_grid[i]->text = charX;
+            } else {
+              placement_grid[i]->text = charO;
+            }
+            send_board(&online, board);
+            my_turn = false;
+            last_to_win = check_winner(board);
+            if (last_to_win != PLAYER_NONE) {
+              zero_board(board);
+              if (hosting) {
+                my_turn = true;
+              } else {
+                my_turn = false;
+              }
+              for (int i = 0; i < BOARD_SIZE; ++i) {
+                placement_grid[i]->text = NULL;
+              }
+            }
+          }
+        }
+      } else {
+        int ret = recv_board(&online, board);
+        if (ret != 0 && ret > 0) {
+          my_turn = true;
+          for (int i = 0; i < BOARD_SIZE; ++i) {
+            if (board[i] == PLAYER_1) {
+              placement_grid[i]->text = charX;
+            } else if (board[i] == PLAYER_2) {
+              placement_grid[i]->text = charO;
+            }
+          }
+          last_to_win = check_winner(board);
+          if (last_to_win != PLAYER_NONE) {
+            zero_board(board);
+            if (hosting) {
+              my_turn = true;
+            } else {
+              my_turn = false;
+            }
+            for (int i = 0; i < BOARD_SIZE; ++i) {
+              placement_grid[i]->text = NULL;
+            }
+          }
+        }
+      }
       break;
     }
 
@@ -252,7 +312,30 @@ void update_draw_frame(void) {
       DrawText("joining game", 10, 10, 50, GREEN);
       break;
     case ONLINE_PLAYING:
-      DrawText("playing online", 10, 10, 50, GREEN);
+      for (int i = 0; i < BOARD_SIZE; ++i) {
+        draw_button(*placement_grid[i]);
+      }
+      if (last_to_win == PLAYER_NONE) {
+        DrawText("playing online", 10, 10, 40, GREEN);
+      } else {
+        switch (last_to_win) {
+        case PLAYER_1:
+          sprintf(winner_text, winner_tempate, charX);
+          break;
+        case PLAYER_2:
+          sprintf(winner_text, winner_tempate, charO);
+          break;
+        default:
+          sprintf(winner_text, winner_tempate, textUnknown);
+          break;
+        }
+        DrawText(winner_text, 10, 10, 60, GREEN);
+      }
+      if (my_turn) {
+        DrawText("your turn", 10, 60, 40, GREEN);
+      } else {
+        DrawText("opponents turn", 10, 60, 40, GREEN);
+      }
       break;
     }
     break;
