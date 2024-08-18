@@ -204,28 +204,30 @@ void update_draw_frame(void) {
         online_state = ONLINE_PLAYING;
         online.new_connection = online.sock;
       }
+      break;
     case ONLINE_PLAYING:
       if (my_turn) {
         for (int i = 0; i < BOARD_SIZE; ++i) {
           if (is_button_pressed(*placement_grid[i], mouse_pos)) {
-            board[i] = my_piece;
-            if (my_piece == PLAYER_1) {
-              placement_grid[i]->text = charX;
-            } else {
-              placement_grid[i]->text = charO;
-            }
-            send_board(&online, board);
-            my_turn = false;
-            last_to_win = check_winner(board);
-            if (last_to_win != PLAYER_NONE) {
-              zero_board(board);
-              if (hosting) {
-                my_turn = true;
+            if (place_piece(board, i, my_piece)) {
+              if (my_piece == PLAYER_1) {
+                placement_grid[i]->text = charX;
               } else {
-                my_turn = false;
+                placement_grid[i]->text = charO;
               }
-              for (int i = 0; i < BOARD_SIZE; ++i) {
-                placement_grid[i]->text = NULL;
+              send_board(&online, board);
+              my_turn = false;
+              last_to_win = check_winner(board);
+              if (last_to_win != PLAYER_NONE) {
+                zero_board(board);
+                if (hosting) {
+                  my_turn = true;
+                } else {
+                  my_turn = false;
+                }
+                for (int i = 0; i < BOARD_SIZE; ++i) {
+                  placement_grid[i]->text = NULL;
+                }
               }
             }
           }
